@@ -1,0 +1,93 @@
+:Register server with Red Hat Network
+*** NOTE: /etc/sysconfig/rhn/up2date 
+*** serverURL=serverURL=https://xmlrpc.rhn.redhat.com/XMLRPC
+# rhn_register --nox
+
+:Install Yum Utils
+# yum install -y yum-utils
+
+:Download Channels Locally
+Create Local Repo Directory
+# mkdir /opt/rhn-local-repo
+# reposync -p /opt/rhn-local-repo/ --repoid=rhel-x86_64-server-5 -l
+# reposync -p /opt/rhn-local-repo/ --repoid=rhel-x86_64-server-6 -l
+
+:Create Repo
+Yummify the local directory using the createrepo command. This goes through all the RPM’s 
+and extracts version and dependency information which it uses to generate XML metadata
+files that the yum command can understand.
+
+# yum install -y createrepo
+# createrepo /opt/rhn-local-repo/
+# chmod 755 /opt/rhn-local-repo/
+
+If you add your own RPMs or RPM’s from EPEL, DAG, etc to the repository then you need to
+re-run the createrepo command. A sub directory will be created called getPackage that 
+holds all the RedHat RPM’s. You can add your own RPM’s where you like under the channel 
+directory and they will will be picked up by the createrepo command.
+
+:Install Apache
+# yum install -y httpd
+
+:Add virtual host to /etc/httpd/conf/httpd.conf
+<VirtualHost *:80>
+     ServerAdmin user@domain.com
+   	ServerName server-name.domain
+   	ErrorLog logs/server-name.domain-error_log
+   	CustomLog logs/server-name.domain-access_log common
+	DocumentRoot /opt/rhn-local-repo
+
+	<Directory /opt/rhn-local-repo>
+		Order deny,allow
+		Deny from all
+		Allow from [ip addr]/24
+	</Directory>
+
+	RewriteEngine On	
+</VirtualHost>
+
+:Configure IPTables
+iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
+iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+service iptables save
+service iptables reload
+service iptables restart
+
+:Enable start on boot
+# chkconfig httpd on
+
+:Start Apache
+# /etc/init.d/httpd start
+
+:Distribute a yum config file for your new repo to /etc/yum.repos.d/my.repo on all 
+internal servers (server-name.domain)
+
+cat > /etc/yum.repos.d/rhn-local-repo.repo << EOF
+[rhn-local-repo]
+name= RHEL 6 x86_64
+baseurl=http://server-name.domain
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+EOF
+
+:Verify Repo
+yum repolist
+
+:Disable RHN on spacewalk-rhn
+# vi /etc/yum/pluginconf.d/rhnplugin.conf
+Set enabled = 0
+
+:Create RHEL 6 Channel on Spacewalk Server
+
+:Sync Packages
+on spacewalk server:
+
+spacewalk-repo-sync --type=yum  --url='http://server-name.domain' --channel='rhel-6-x86_64'
+
+
+
+
+
+
