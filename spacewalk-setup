@@ -172,5 +172,5 @@ port= blank
 database=spaceschema
 username=spaceuser
 password=spacepw
-admin email=kgibson@asmgi.com
+admin email=admin@domain.com
 configure apache ssl? Y
