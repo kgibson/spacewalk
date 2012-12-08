@@ -1,4 +1,4 @@
-:: CREATE CHANNELS ::
+:: CREATE REPOS ::
 
 Click on Channels
 Click on Manage Software Channels
@@ -33,3 +33,81 @@ RHEL 6 x86_64
 Repository Label - RHEL6-x86_64-Base
 Repository URL - http://local-rhn-mirror.domain
 Then click on Create Repository
+
+:: CREATE CHANNELS ::
+
+Click on Channels
+Click on Manage Software Channels
+Click on Create New Channel
+
+:CENTOS 5
+Channel Name - CentOS 5 64-bit
+Channel Label - centos-x86_64-server-5
+Parent Channel - none
+Parent Channel Architecture - x86_64
+Yum Repository Checksum Type - sha256
+Channel Summary - 64-bit CentOS 5 channel
+Under Channel Access Control Select:
+All users within your organization may subscribe to this channel.
+This channel is public and may be accessed by any of the trusted organizations trusted by this organization.
+GPG key URL - http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+GPG key ID - E8562897
+GPG key Fingerprint - 473D 66D5 2122 71FD 51CC  17B1 A8A4 47DC E856 2897
+Click on Create Channel
+
+Assign Repository
+Click Repositories
+Assign both CentOS5-x86_64-Base and CentOS5-x86_64-Updates
+Click Update Repositories
+
+:CENTOS 6
+Channel Name - CentOS 6 64-bit
+Channel Label - centos-x86_64-server-6
+Parent Channel - none
+Parent Channel Architecture - x86_64
+Yum Repository Checksum Type - sha256
+Channel Summary - 64-bit CentOS 6 channel
+Under Channel Access Control Select:
+All users within your organization may subscribe to this channel.
+This channel is public and may be accessed by any of the trusted organizations trusted by this organization.
+GPG key URL - http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+GPG key ID - C105B9DE
+GPG key Fingerprint - C1DA C52D 1664 E8A4 386D  BA43 0946 FCA2 C105 B9DE
+Click on Create Channel
+
+Assign Repository
+Click Repositories
+Assign both CentOS6-x86_64-Base and CentOS6-x86_64-Updates
+Click Update Repositories
+
+:SPACEWALK CLIENT
+CENTOS6
+Channel Name - Spacewalk Client 64bit RHEL6
+Channel Label - spacewalk-client-64bit-rhel6
+Parent Channel - CentOS 6 32-bit
+Parent Channel Architecture - IA-33
+Yum Repository Checksum Type - sha1
+Channel Summary - Spacewalk Client 32bit for RHEL6
+Under Channel Access Control Select:
+All users within your organization may subscribe to this channel.
+This channel is public and may be accessed by any of the trusted organizations trusted by this organization.
+GPG key URL - http://spacewalk.redhat.com/yum/RPM-GPG-KEY-spacewalk-2012
+GPG key ID - 430A1C35
+GPG key Fingerprint - B6F4 CBE4 8B8F 45E1 85F8 34B2 9542 3D4E 430A 1C35
+Assign the repository spacewalk-client-rhel6-i386 to the channel and set a sync schedule
+
+:SPACEWALK CLIENT
+RHEL 6
+Channel Name - Red Hat Enterprise Linux Server 6
+Channel Label - rhel-x86_64-server-6
+Parent Channel - None
+Parent Channel Architecture - N/A
+Yum Repository Checksum Type - SHA-256
+Channel Summary - Red Hat Enterprise Linux Server (v. 6 for 64-bit AMD64 / Intel64)
+Under Channel Access Control Select:
+All users within your organization may subscribe to this channel.
+This channel is public and may be accessed by any of the trusted organizations trusted by this organization.
+GPG key URL - http://spacewalk-rhn.clv.main.asmgi.com/RPM-GPG-KEY-redhat-release
+GPG key ID - FD431D51
+GPG key Fingerprint - 567E 347A D004 4ADE 55BA  8A5F 199E 2F91 FD43 1D51
+Assign the repository spacewalk-client-rhel6-i386 to the channel and set a sync schedule
