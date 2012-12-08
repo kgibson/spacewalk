@@ -130,12 +130,6 @@ setenforce 0
 
 
 : CONFIGURE COBBLER
-**IF SPACEWALK INSTALL FAILS, REMEMBER:
-removed cobbler-web
-modified /etc/cobbler/settings -> changed to redhat_management_permissive = 1 from 0
-modified /etc/cobbler/settings -> changed redhat_management_server: "spacewalk.clv.main.asmgi.com" from rhn network server
-modified /etc/cobbler/settings -> changed redhat_management_type: "site" from "off"
-
 :Replace /etc/cobbler/settings
 cp /etc/cobbler/settings /etc/cobbler/settings.old
 SCP replace settings file with standard template
