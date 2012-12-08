@@ -1,0 +1,62 @@
+:: DOWNLOAD AND IMPORT GPG KEYS ::
+: Create local key store and download keys
+
+: CentOS5
+# mkdir repo_keys
+# cd repo_keys
+# curl -O http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+: Import key into GPG Keyring
+# gpg --import RPM-GPG-KEY-CentOS-5
+Note GPG Key ID from output
+ex:gpg: key E8562897: public key "CentOS-5 Key (CentOS 5 Official Signing Key) <centos-5-key@centos.org>" imported
+            ^^^^^^^^
+: Note Key Fingerprint by listing key info, based on fingerprint ID
+#gpg --list-keys --fingerprint E8562897
+  pub   1024D/E8562897 2007-01-06 [expires: 2017-01-03]
+		Key fingerprint = 473D 66D5 2122 71FD 51CC  17B1 A8A4 47DC E856 2897
+	uid                  CentOS-5 Key (CentOS 5 Official Signing Key) <centos-5-key@centos.org>
+	sub   1024g/1E9EA3B6 2007-01-06 [expires: 2017-01-03]
+
+: Now that key is imported, we can use the ID shown in output in channel definition.  Also, it's advised to do import from RPM
+CENTOS5 KEY FINGERPRINT = 473D 66D5 2122 71FD 51CC  17B1 A8A4 47DC E856 2897
+rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+
+: CentOS6
+# curl -O http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6
+: Import key into GPG Keyring
+# gpg --import RPM-GPG-KEY-CentOS-6
+Note GPG Key ID from output
+gpg: key C105B9DE: public key "CentOS-6 Key (CentOS 6 Official Signing Key) <centos-6-key@centos.org>" imported
+         ^^^^^^^^
+#gpg --list-keys --fingerprint C105B9DE
+pub   4096R/C105B9DE 2011-07-03 [expires: 2021-06-30]
+      Key fingerprint = C1DA C52D 1664 E8A4 386D  BA43 0946 FCA2 C105 B9DE
+uid                  CentOS-6 Key (CentOS 6 Official Signing Key) <centos-6-key@centos.org>
+
+: RHEL 6
+# curl -O http://local-rhn-mirror.domain/RPM-GPG-KEY-redhat-release
+: Import key into GPG Keyring
+# gpg --import RPM-GPG-KEY-redhat-release
+Note release key 2 GPG Key ID from output, for releases after 2009 and auxillary key for releases after 2006
+gpg: key FD431D51: public key "Red Hat, Inc. (release key 2) <security@redhat.com>" imported
+         ^^^^^^^^
+# gpg --list-keys --fingerprint FD431D51
+pub   4096R/FD431D51 2009-10-22
+      Key fingerprint = 567E 347A D004 4ADE 55BA  8A5F 199E 2F91 FD43 1D51
+uid                  Red Hat, Inc. (release key 2) <security@redhat.com>
+
+: Spacewalk Client
+# curl -O http://spacewalk.redhat.com/yum/RPM-GPG-KEY-spacewalk-2012
+: Import key into GPG Keyring
+# gpg --import RPM-GPG-KEY-spacewalk-2012
+Note GPG Key ID from output
+ex:gpg: key 863A853D: public key "Spacewalk <spacewalk-devel@redhat.com>" imported
+            ^^^^^^^^
+: Note Key Fingerprint by listing key info, based on fingerprint ID
+#gpg --list-keys --fingerprint 863A853D
+pub   1024D/863A853D 2012-03-06 [expires: 2014-08-23]
+      Key fingerprint = 8F85 8A91 03E3 3965 6BE9  64D0 0E64 6F68 863A 853D
+uid                  Spacewalk <spacewalk-devel@redhat.com>
+: Now that key is imported, we can use the ID shown in output in channel definition.  Also, it's advised to do import from RPM
+SPACEWALK-CLIENT KEY FINGERPRINT = 8F85 8A91 03E3 3965 6BE9  64D0 0E64 6F68 863A 853D
+rpm --import http://spacewalk.redhat.com/yum/RPM-GPG-KEY-spacewalk-2012
