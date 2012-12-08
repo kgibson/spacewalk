@@ -1,0 +1,182 @@
+::PROVISION SERVER::
+: CONFIGURE NIC
+# vi /etc/sysconfig/network-scripts/ifcfg-eth0 
+
+DEVICE=eth0
+BOOTPROTO=static
+ONBOOT=yes
+NETWORK=[network of machine i.e. 192.168.1.0]
+NETMASK=[subnet of machine ip]
+IPADDR=[ip of machine]
+
+: CREATE HARD LINKS TO CONFIG FILE
+# ln /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/networking/devices/ifcfg-eth0
+# ln /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/networking/profiles/default/ifcfg-eth0
+
+: SET HOSTNAME
+# hostname [DNS Name of server]
+
+: CONFIGURE NETWORK 
+# vi /etc/sysconfig/network
+
+NETWORKING=[yes]
+HOSTNAME=[my-system-name]
+GATEWAY=[gateway of IP]
+
+: SAVE AND SET PERMISSIONS
+# chmod 644 /etc/sysconfig/network
+
+: SET NAMESERVER
+# vi /etc/resolv.conf
+
+search clv.main.asmgi.com
+nameserver [ip of dns server]
+
+::CONFIGURE IPTABLES
+: ADD SPACEWALK RULES
+Port 80 and 443 for connection to Web Interface and client connections to the server.
+Port 4545 for Spacewalk monitoring.
+Port 5222 for push actions to client machines.
+Port 5269 for push actions to a Spacewalk Proxy.
+Port 69 UDP for TFTP if provisioning will be used.
+
+iptables -D INPUT -j REJECT --reject-with icmp-host-prohibited
+iptables -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 25151 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 4545 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 5222 -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport 5269 -j ACCEPT
+iptables -A INPUT -p udp -m udp --dport 69 -j ACCEPT
+iptables -A INPUT -j REJECT --reject-with icmp-host-prohibited
+iptables -A INPUT -i lo -j ACCEPT
+
+service iptables save
+service iptables restart
+
+:: Install Necessary Utilities ::
+yum -y install screen
+yum -y install mlocate
+yum -y install policycoreutils-python
+
+::UPDATE O/S::
+# screen 
+# yum update
+
+::ADD RHEL 6 RPM::
+rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-7.noarch.rpm
+or if above is not responding
+http://mirror.chpc.utah.edu/pub/epel/6/i386/epel-release-6-7.noarch.rpm
+
+::SETUP SPACEWALK::
+: ADD SPACEWALK REPO 
+rpm -Uvh http://spacewalk.redhat.com/yum/1.8/RHEL/6/x86_64/spacewalk-repo-1.8-4.el6.noarch.rpm         
+
+: SETUP JPACKAGE REPO
+
+cat > /etc/yum.repos.d/jpackage-generic.repo << EOF
+[jpackage-generic]
+name=JPackage generic
+baseurl=http://ftp.sh.cvut.cz/MIRRORS/jpackage/5.0/generic/free/
+enabled=1
+gpgcheck=1
+gpgkey=http://www.jpackage.org/jpackage.asc
+EOF
+
+: IMPORT GNUPG KEYS FOR REPOS:
+rpm --import http://spacewalk.redhat.com/yum/RPM-GPG-KEY-spacewalk-2012
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+rpm --import http://www.jpackage.org/jpackage.asc
+
+: INSTALL POSTGRES
+yum install -y 'postgresql-server > 8.4'
+
+: SET POSTGRES TO AUTO START
+chkconfig postgresql on
+
+: INITIALIZE DATABASE
+service postgresql initdb
+
+: START POSTGRESQL SERVICE
+service postgresql start
+
+: CREATE DATABASE, USER, LANGUAGE
+Schema:  	spaceschema
+Language:	plpgsql
+User:		spaceuser
+Password:	spacepw
+
+su - postgres -c 'PGPASSWORD=spacepw; createdb spaceschema ; createlang plpgsql spaceschema ; yes $PGPASSWORD | createuser -P -sDR spaceuser'
+
+: CONFIGURE THE USER TO USE MD5 PASSWORD TO CONNECT TO THAT DATABASE 
+* Put the lines like following to /var/lib/pgsql/data/pg_hba.conf. Avoid the common pitfall: Make sure you put them *before* those existing lines that are for all..
+local spaceschema spaceuser md5
+host  spaceschema spaceuser 127.0.0.1/8 md5
+host  spaceschema spaceuser ::1/128 md5
+local spaceschema postgres  ident
+
+: RELOAD POSTGRESQL
+service postgresql reload
+
+: TEST CONNECTION
+PGPASSWORD=spacepw psql -a -U spaceuser spaceschema
+PGPASSWORD=spacepw psql -h localhost -a -U spaceuser spaceschema
+
+: INSTALL CMAN / PYKICKSTART / COBLLER / CONFIGURE SELINUX
+yum install cman -y
+yum install pykickstart -y
+yum install cobbler -y
+setenforce 0
+
+
+: CONFIGURE COBBLER
+**IF SPACEWALK INSTALL FAILS, REMEMBER:
+removed cobbler-web
+modified /etc/cobbler/settings -> changed to redhat_management_permissive = 1 from 0
+modified /etc/cobbler/settings -> changed redhat_management_server: "spacewalk.clv.main.asmgi.com" from rhn network server
+modified /etc/cobbler/settings -> changed redhat_management_type: "site" from "off"
+
+:Replace /etc/cobbler/settings
+cp /etc/cobbler/settings /etc/cobbler/settings.old
+SCP replace settings file with standard template
+Settings Updated:
+server: 192.168.111.40
+next_server: 192.168.11.40
+redhat_management_permissive = 1 (enable users with admin rights in spacewalk to access cobbler web
+
+:Replace /etc/cobbler/modules.conf
+cp /etc/cobbler/modules.conf /etc/cobbler/modules.conf.old
+Setings Updated:
+module = authn_spacewalk
+
+:Start HTTPD
+# service httpd start
+
+# service cobblerd start
+
+# cobbler get-loaders
+
+# vi /etc/xinetd.d/rsync
+change disable to no
+
+Ensure iptables configured
+# iptables -I INPUT -p tcp -m multiport --dports 69,80,443,25151 -j ACCEPT
+
+# cobbler check
+fix any necessary tasks
+
+# cobbler sync
+ensure task completes
+
+::INSTALL SPACEWALK 1.8::
+yum install spacewalk-postgresql spacewalk-utils.noarch spacewalk-reports.noarch spacewalk-remote-utils -y
+
+: SETUP SPACEWALK 1.8
+spacewalk-setup --disconnected --external-db
+hostname= blank
+port= blank
+database=spaceschema
+username=spaceuser
+password=spacepw
+admin email=kgibson@asmgi.com
+configure apache ssl? Y
