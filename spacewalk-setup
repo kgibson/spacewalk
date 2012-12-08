@@ -29,7 +29,7 @@ GATEWAY=[gateway of IP]
 : SET NAMESERVER
 # vi /etc/resolv.conf
 
-search clv.main.asmgi.com
+search [primary dns zone]
 nameserver [ip of dns server]
 
 ::CONFIGURE IPTABLES
