@@ -134,8 +134,8 @@ setenforce 0
 cp /etc/cobbler/settings /etc/cobbler/settings.old
 SCP replace settings file with standard template
 Settings Updated:
-server: 192.168.111.40
-next_server: 192.168.11.40
+server: 0.0.0.0
+next_server: 0.0.0.0
 redhat_management_permissive = 1 (enable users with admin rights in spacewalk to access cobbler web
 
 :Replace /etc/cobbler/modules.conf
