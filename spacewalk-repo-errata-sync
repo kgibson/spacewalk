@@ -1,0 +1,40 @@
+: Setup sync_repo.py
+Upload sync_repos.py to /sbin
+
+Allow script to be executed by cron job
+# chmod +x /sbin/sync_repos.py
+
+:Setup eva-direct-errata-sync.pl
+#yum install perl
+#yum install cpan
+#cpan App::cpanminus
+   Accept multiple defaults (??? seems like too much to be required for installing modules ???)
+
+Ensure Modules Installed:
+# cpanm Frontier::Client
+# cpanm Getopt::Long
+# cpanm Pod::Usage
+# cpanm Term::ReadKey
+
+CLI Command
+perl /sbin/eva-direct-errata-sync.pl --sourceuser=rhn-user --destinationuser=spacewalk-user --sourcepassword='password' --destinationpassword='password' --sourcechannel=rhel-x86_64-server-6 --destinationchannel=rhel-6-x86_64 -v
+
+vi sync-errata.sh
+Paste in the following:
+export ERRATASRCUSER=rhn-user
+export ERRATADSTUSER=spacewalk-user
+export ERRATASRCPASS=rhn-password
+export ERRATADSTPASS=spacewalk-password
+export ERRATADST=localhost
+./eva-direct-errata-sync.pl --sourcechannel=rhel-x86_64-server-6 --destinationchannel=rhel-6-x86_64 -F day -r -v
+./eva-direct-errata-sync.pl --sourcechannel=rhel-x86_64-server-5 --destinationchannel=centos-x86_64-server-5 --rewritepackagereleasefrom el5 --rewritepackagereleaseto el5.centos -F day  -e RH  -E CENTOS5X86_64 -r -v
+./eva-direct-errata-sync.pl --sourcechannel=rhel-x86_64-server-6 --destinationchannel=centos-x86_64-server-6 --rewritepackagereleasefrom el6 --rewritepackagereleaseto el6.centos -F day  -e RH  -E CENTOS6X86_64 -r -v
+
+
+Create cron job to execute sync_repos.py daily
+# crontab -e
+# Minute   Hour   Day of Month       Month          Day of Week     User      Command
+# (0-59)  (0-23)     (1-31)    (1-12 or Jan-Dec)  (0-6 or Sun-Sat)
+    *       1          *               *                 *          root      python /sbin/sync-repos.py > /sbin/sync-repos.out 2>&1
+    *       5          *               *                 *          root      sh /sbin/sync-errata.sh > sync-errata.out 2>&1
+#    *       5          *               *                 *          root      perl /sbin/import-errata.pl -v >> /sbin/import-errata.pl-out
