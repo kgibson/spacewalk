@@ -1,0 +1,15 @@
+:: Register CentOS System with Spacewalk ::
+
+: Install Spacewalk Yum Repository
+# rpm -Uvh http://spacewalk.redhat.com/yum/1.7/RHEL/6/i386/spacewalk-client-repo-1.7-5.el6.noarch.rpm
+
+: Install python-hwdata
+copy python-hwdata-1.7.3-1.el6.noarch.rpm to /usr/local
+# rpm -Uvh /usr/local/python-hwdata-1.7.3-1.el6.noarch.rpm
+
+: Install Client Packages
+# yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin
+
+: Register with Spacewalk with activation key for Organization
+C105B9DE
+# rhnreg_ks --serverUrl=http://server-name.domain/XMLRPC --activationkey=C105B9DE 
