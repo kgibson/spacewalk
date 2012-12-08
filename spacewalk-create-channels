@@ -1,0 +1,35 @@
+:: CREATE CHANNELS ::
+
+Click on Channels
+Click on Manage Software Channels
+Click on Manage Repositories
+Click on Create New Repository
+
+:Create new repositories as follows:
+
+CentOS 5 x86_64
+Repository Label - CentOS5-x86_64-Base
+Repository URL - http://mirror.centos.org/centos/5/os/x86_64/
+Then click on Create Repository
+
+Repository Label - CentOS5-x86_64-Updates
+Repository URL - http://mirror.centos.org/centos/5/updates/x86_64/
+Then click on Create Repository
+
+CentOS 6 x86_64
+Repository Label - CentOS6-x86_64-Base
+Repository URL - http://mirror.centos.org/centos/6/os/x86_64/
+Then click on Create Repository
+
+Repository Label - CentOS6-x86_64-Updates
+Repository URL - http://mirror.centos.org/centos/6/updates/x86_64/
+Then click on Create Repository
+
+Repository Label - spacewalk-client-rhel6-x86_64
+Repository URL - http://spacewalk.redhat.com/yum/1.8/RHEL/6/x86_64/
+Then click on Create Repository
+
+RHEL 6 x86_64
+Repository Label - RHEL6-x86_64-Base
+Repository URL - http://local-rhn-mirror.domain
+Then click on Create Repository
