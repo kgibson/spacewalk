@@ -1,0 +1,44 @@
+:: CREATE GPG KEY + SIGN CERTIFICATE ::
+First create a GPG key, accepting defaults
+# gpg --gen-key
+
+Then see if your key appears in the output of the following commands. For example, we generated a key for Scooby below.
+# gpg --list-keys
+/home/scooby/.gnupg/pubring.gpg
+-------------------------------
+pub   1024D/[your key id] 2008-06-11
+uid                  Scooby Doo <scooby@redhat.com>
+sub   2048g/AFD3819B 2008-06-11
+
+# gpg --list-secret-keys
+/home/scooby/.gnupg/secring.gpg
+-------------------------------
+sec   1024D/[your key id] 2008-06-11
+uid                  Scooby Doo <scooby@redhat.com>
+ssb   2048g/AFD3819B 2008-06-11
+
+Finally, export both public and secret keys.
+# gpg --export -a [your key id] > /usr/local/spacewalk-key.gpg
+# gpg --export-secret-keys -a [your key id] > /usr/local/spacewalk-secret-key.gpg
+
+:Add keys to /etc/webapp-keyring.gpg keyring
+# gpg --no-default-keyring --keyring /etc/webapp-keyring.gpg --import /usr/local/spacewalk-key.gpg
+# gpg --no-default-keyring --keyring /etc/webapp-keyring.gpg --import /usr/local/spacewalk-secret-key.gpg
+
+:Sign The Certificate
+Copy gen-oss-sat-cert.pl to /usr/local
+Edit default template:
+# vi /usr/share/spacewalk/setup/spacewalk-public.cert
+Update org name and any other fields as needed
+Write and Quit
+
+Ensure public and secret keys are imported as user running script
+# gpg --import /usr/local/spacewalk-key.gpg
+# gpg --import /usr/local/spacewalk-secret-key.gpg
+
+Resign Certificate
+Install Perl Module
+# yum install perl-TermReadKey.x86_64
+Sign Certificate
+# perl /usr/local/gen-oss-sat-cert.pl --signer [your key id] --resign /usr/share/spacewalk/setup/spacewalk-public.cert
+Enter passphrase used to create keys
