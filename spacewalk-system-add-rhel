@@ -1,0 +1,40 @@
+Warning: If you are installing these packages on a Red Hat Enterprise Linux installation it will override some of the original base packages and you may well be invalidating your support agreement with Red Hat!
+
+:Create Activation Key
+Login to Spacewalk
+Systems -> Activation Keys -> Create New Key
+Description = Redhat Enterprise Linux 6 x86_64
+key = rhel6-x86_64
+usage = blank
+base channel = rhel6-x86_64
+
+:Install the Spacewalk yum repository
+RHEL 5
+# rpm -Uvh http://spacewalk.redhat.com/yum/1.7/RHEL/5/i386/spacewalk-client-repo-1.7-5.el5.noarch.rpm
+
+RHEL 6
+# rpm -Uvh http://spacewalk.redhat.com/yum/1.7/RHEL/6/i386/spacewalk-client-repo-1.7-5.el6.noarch.rpm
+
+The latest client tools bring the upstream development to your client boxes. That means that the packages may have dependencies that are not found in core Red Hat Enterprise Linux. These dependencies can be found in EPEL, just like for the Spacewalk server.
+
+:Install client tools
+RHEL5
+# BASEARCH=$(uname -i)
+# rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/$BASEARCH/epel-release-5-4.noarch.rpm
+
+RHEL6
+# BASEARCH=$(uname -i)
+# rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/$BASEARCH/epel-release-6-7.noarch.rpm
+
+:Install client packages
+# yum install rhn-client-tools rhn-check rhn-setup rhnsd m2crypto yum-rhn-plugin
+
+:Register with Spacewalk using activation key created earlier
+# rhnreg_ks --serverUrl=http://server-name.domain/XMLRPC --activationkey=1-rhel6-x86_64
+
+:register the gateway server with the RedHat Network
+
+
+
+
+
